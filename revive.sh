@@ -30,6 +30,11 @@ for info in "${hosts_info[@]}"; do
   if echo "$output" | grep -q "keepalive.sh"; then
     echo "登录成功x"
     msg="🟢主机 ${host}, 用户 ${user}， 登录成功!\n"
+
+   # 执行重启newapi命令
+    restart_cmd="cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html && pm2 start ./start.sh --name new-api"
+    sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "$restart_cmd"
+       echo "重启newapi"
   else
     echo "登录失败"
     msg="🔴主机 ${host}, 用户 ${user}， 登录失败!\n"
@@ -39,16 +44,11 @@ for info in "${hosts_info[@]}"; do
   fi
   summary=$summary$(echo -n $msg)
 done
-  echo "测试2"
+
 if [[ "$LOGININFO" == "Y" ]]; then
 
-   echo "测试"
+
   chmod +x ./tgsend.sh
   ./tgsend.sh "$summary"
 
-   # 重启newapi
-  cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html
-  pm2 start ./start.sh --name new-api
-
-   echo "重启newapi"
 fi
