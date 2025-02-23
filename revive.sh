@@ -43,4 +43,10 @@ done
 if [[ "$LOGININFO" == "Y" ]]; then
   chmod +x ./tgsend.sh
   ./tgsend.sh "$summary"
+
+   # 重启newapi
+  cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html
+  pm2 start ./start.sh --name new-api
+
+   echo "重启newapi"
 fi
