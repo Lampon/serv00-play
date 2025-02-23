@@ -39,8 +39,10 @@ for info in "${hosts_info[@]}"; do
   fi
   summary=$summary$(echo -n $msg)
 done
-
+  echo "测试2"
 if [[ "$LOGININFO" == "Y" ]]; then
+
+   echo "测试"
   chmod +x ./tgsend.sh
   ./tgsend.sh "$summary"
 
