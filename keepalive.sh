@@ -185,6 +185,20 @@ startAlist() {
   fi
 
 }
+# 添加检查newapi状态的函数
+checkNewApiAlive() {
+  if pm2 list | grep "new-api" | grep "online" >/dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# 添加启动newapi的函数
+startNewApi() {
+  cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html
+  pm2 start ./start.sh --name new-api
+}
 
 startSunPanel() {
   cd ${installpath}/serv00-play/sunpanel
@@ -318,6 +332,18 @@ for obj in "${monitor[@]}"; do
       cd ${installpath}/serv00-play/singbox
       chmod +x ./start.sh && ./start.sh 2 keep
       sleep 1
+      
+     # 检查并重启newapi
+      if ! checkNewApiAlive; then
+        startNewApi
+        sleep 1
+        if ! checkNewApiAlive; then
+          msg="${msg}newapi 重启失败."
+        else
+          msg="${msg}newapi 重启成功."
+        fi
+      fi
+      
       if ! checkHy2Alive; then
         msg="hy2 重启失败."
       else
