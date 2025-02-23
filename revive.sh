@@ -31,13 +31,6 @@ for info in "${hosts_info[@]}"; do
     echo "登录成功x"
     msg="🟢主机 ${host}, 用户 ${user}， 登录成功!\n"
 
-    # 检查并安装 PM2
-    check_pm2="command -v pm2 || (npm install -g pm2)"
-    sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "$check_pm2"
-   # 执行重启newapi命令
-    restart_cmd="cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html && pm2 start ./start.sh --name new-api"
-    sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "$restart_cmd"
-       echo "重启newapi"
   else
     echo "登录失败"
     msg="🔴主机 ${host}, 用户 ${user}， 登录失败!\n"
