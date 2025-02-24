@@ -49,13 +49,28 @@ for info in "${hosts_info[@]}"; do
     echo "🔄 正在启动 newapi 服务..."
     
     sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "
+        # 加载环境变量
+        source ~/.bashrc
+        source ~/.profile
+        export PATH=/usr/local/bin:$PATH
+        export NVM_DIR=\"\$HOME/.nvm\"
+        [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"
+        
         cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html
         pm2 start ./start.sh --name new-api
     "
     
     # 验证服务是否成功启动
     sleep 2
-    check_newapi=$(sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "pm2 list | grep 'new-api' || echo 'not found'")
+    check_newapi=$(sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "
+        source ~/.bashrc
+        source ~/.profile
+        export PATH=/usr/local/bin:$PATH
+        export NVM_DIR=\"\$HOME/.nvm\"
+        [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"
+        
+        pm2 list | grep 'new-api' || echo 'not found'
+    ")
     if echo "$check_newapi" | grep -q "online"; then
         echo "✅ newapi 服务启动成功"
         return 0
@@ -66,7 +81,16 @@ for info in "${hosts_info[@]}"; do
   }
 
   # 在原有代码中添加检查和启动逻辑
-  check_newapi=$(sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "pm2 list | grep 'new-api' || echo 'not found'")
+  check_newapi=$(sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "
+    source ~/.bashrc
+    source ~/.profile
+    export PATH=/usr/local/bin:$PATH
+    export NVM_DIR=\"\$HOME/.nvm\"
+    [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"
+    
+    pm2 list | grep 'new-api' || echo 'not found'
+  ")
+
   if ! echo "$check_newapi" | grep -q "online"; then
     echo "⚠️ 主机 ${host} 上的 newapi 服务未运行，准备启动..."
     if start_newapi "$host" "$user" "$port" "$pass"; then
