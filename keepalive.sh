@@ -389,52 +389,47 @@ if [[ "$autoUpdateHyIP" == "Y" ]]; then
 fi
 
 # 在主循环结束后，cleanup之前添加
-echo "开始检查 newapi 服务状态..."
+echo "================ NewAPI 检查开始 ================"
 
 # 添加检查newapi状态的函数
 checkNewApiAlive() {
-  echo "执行 checkNewApiAlive 检查..."
   if pm2 list | grep "new-api" | grep "online" >/dev/null; then
-    echo "newapi 服务正在运行"
+    echo "✓ newapi 服务正在运行"
     return 0
   else
-    echo "newapi 服务未运行"
+    echo "✗ newapi 服务未运行"
     return 1
   fi
 }
 
 # 添加启动newapi的函数
 startNewApi() {
-  echo "尝试启动 newapi 服务..."
   cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html
   if [ -d "/usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html" ]; then
-    echo "目录存在，开始启动服务"
     pm2 start ./start.sh --name new-api
   else
-    echo "错误：newapi 目录不存在"
+    echo "✗ 错误：newapi 目录不存在"
     return 1
   fi
 }
 
 # 检查并重启newapi
 if ! checkNewApiAlive; then
-  echo "newapi服务未运行，准备重启"
+  echo "! 正在尝试重启 newapi 服务..."
   startNewApi
   sleep 1
   if ! checkNewApiAlive; then
-    msg="newapi 重启失败."
-    echo "$msg"
+    msg="newapi 重启失败"
+    echo "✗ $msg"
     sendMsg "$msg"
   else
-    echo "newapi服务启动成功"
-    msg="newapi 重启成功."
+    msg="newapi 重启成功"
+    echo "✓ $msg"
     sendMsg "$msg"
   fi
-else
-  echo "newapi 服务运行正常，无需重启"
 fi
 
-echo "newapi 服务检查完成"
+echo "================ NewAPI 检查结束 ================"
 
 devil info account &>/dev/null
 
