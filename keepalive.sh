@@ -406,16 +406,16 @@ startNewApi() {
 
 # 检查并重启newapi
 if ! checkNewApiAlive; then
-  echo("newapi服务未运行")
+  echo "newapi服务未运行"
   startNewApi
   sleep 1
   if ! checkNewApiAlive; then
     msg="${msg}newapi 重启失败."
-   else
-    echo("newapi服务启动成功")
+  else
+    echo "newapi服务启动成功"
     msg="${msg}newapi 重启成功."
-    fi
   fi
+fi
 
 devil info account &>/dev/null
 
