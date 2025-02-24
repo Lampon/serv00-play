@@ -137,7 +137,7 @@ startNeZhaAgent() {
     args="${args} --tls "
   fi
 
-  nohup ./nezha-agent ${args} -s "${nezha_domain}:${nezha_port}" -p "${nezha_pwd}" >/dev/null 2>&1 &
+  nohup ./nezha-agent ${args} -s "${nezha_domain}:${nezha_port}" -p "${nezha_pwd}"  &
 
 }
 
@@ -148,7 +148,7 @@ startMtg() {
 
   secret=$(jq -r ".secret" $config)
   port=$(jq -r ".port" $config)
-  cmd="nohup ./mtg simple-run -n 1.1.1.1 -t 30s -a 1MB 0.0.0.0:$port $secret -c 8192 --prefer-ip=\"prefer-ipv6\" >/dev/null 2>&1 &"
+  cmd="nohup ./mtg simple-run -n 1.1.1.1 -t 30s -a 1MB 0.0.0.0:$port $secret -c 8192 --prefer-ip=\"prefer-ipv6\"  &"
   eval "$cmd"
   sleep 1
   if checkMtgAlive; then
