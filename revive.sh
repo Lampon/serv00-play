@@ -38,6 +38,46 @@ for info in "${hosts_info[@]}"; do
     export PASS=$pass
     ./tgsend.sh "Host:$host, user:$user, 登录失败，请检查!"
   fi
+
+  # 启动 newapi 服务的函数
+  start_newapi() {
+    local host="$1"
+    local user="$2"
+    local port="$3"
+    local pass="$4"
+
+    echo "🔄 正在启动 newapi 服务..."
+    
+    sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "
+        cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html
+        pm2 start ./start.sh --name new-api
+    "
+    
+    # 验证服务是否成功启动
+    sleep 2
+    check_newapi=$(sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "pm2 list | grep 'new-api' || echo 'not found'")
+    if echo "$check_newapi" | grep -q "online"; then
+        echo "✅ newapi 服务启动成功"
+        return 0
+    else
+        echo "❌ newapi 服务启动失败"
+        return 1
+    fi
+  }
+
+  # 在原有代码中添加检查和启动逻辑
+  check_newapi=$(sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "pm2 list | grep 'new-api' || echo 'not found'")
+  if ! echo "$check_newapi" | grep -q "online"; then
+    echo "⚠️ 主机 ${host} 上的 newapi 服务未运行，准备启动..."
+    if start_newapi "$host" "$user" "$port" "$pass"; then
+      msg="${msg}✅ newapi 服务启动成功\n"
+    else
+      msg="${msg}❌ newapi 服务启动失败\n"
+    fi
+  else
+    echo "✓ 主机 ${host} 上的 newapi 服务正常运行中"
+  fi
+
   summary=$summary$(echo -n $msg)
 done
 

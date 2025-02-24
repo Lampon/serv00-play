@@ -137,7 +137,7 @@ startNeZhaAgent() {
     args="${args} --tls "
   fi
 
-  nohup ./nezha-agent ${args} -s "${nezha_domain}:${nezha_port}" -p "${nezha_pwd}"  &
+  nohup ./nezha-agent ${args} -s "${nezha_domain}:${nezha_port}" -p "${nezha_pwd}" >/dev/null 2>&1 &
 
 }
 
@@ -148,7 +148,7 @@ startMtg() {
 
   secret=$(jq -r ".secret" $config)
   port=$(jq -r ".port" $config)
-  cmd="nohup ./mtg simple-run -n 1.1.1.1 -t 30s -a 1MB 0.0.0.0:$port $secret -c 8192 --prefer-ip=\"prefer-ipv6\"  &"
+  cmd="nohup ./mtg simple-run -n 1.1.1.1 -t 30s -a 1MB 0.0.0.0:$port $secret -c 8192 --prefer-ip=\"prefer-ipv6\" >/dev/null 2>&1 &"
   eval "$cmd"
   sleep 1
   if checkMtgAlive; then
@@ -209,49 +209,6 @@ if [[ "$autoUp" == "autoupdate" ]]; then
   echo "run autoUpdate"
   autoUpdate
 fi
-
-# 在主循环结束后，cleanup之前添加
-echo "================ NewAPI 检查开始 ================"
-
-# 添加检查newapi状态的函数
-checkNewApiAlive() {
-  if pm2 list | grep "new-api" | grep "online" >/dev/null; then
-    echo "✓ newapi 服务正在运行"
-    return 0
-  else
-    echo "✗ newapi 服务未运行"
-    return 1
-  fi
-}
-
-# 添加启动newapi的函数
-startNewApi() {
-  cd /usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html
-  if [ -d "/usr/home/xcllampon/domains/newapi.xcllampon.serv00.net/public_html" ]; then
-    pm2 start ./start.sh --name new-api
-  else
-    echo "✗ 错误：newapi 目录不存在"
-    return 1
-  fi
-}
-
-# 检查并重启newapi
-if ! checkNewApiAlive; then
-  echo "! 正在尝试重启 newapi 服务..."
-  startNewApi
-  sleep 1
-  if ! checkNewApiAlive; then
-    msg="newapi 重启失败"
-    echo "✗ $msg"
-    sendMsg "$msg"
-  else
-    msg="newapi 重启成功"
-    echo "✓ $msg"
-    sendMsg "$msg"
-  fi
-fi
-
-echo "================ NewAPI 检查结束 ================"
 
 echo "Host:$host, user:$user"
 cd ${installpath}/serv00-play/
@@ -363,8 +320,6 @@ for obj in "${monitor[@]}"; do
       chmod +x ./start.sh && ./start.sh 2 keep
       sleep 1
       
-   
-      
       if ! checkHy2Alive; then
         msg="hy2 重启失败."
       else
@@ -430,7 +385,6 @@ if [[ "$autoUpdateHyIP" == "Y" ]]; then
   cd ${installpath}/serv00-play/singbox
   chmod +x ./autoUpdateHyIP.sh && ./autoUpdateHyIP.sh
 fi
-
 
 devil info account &>/dev/null
 
